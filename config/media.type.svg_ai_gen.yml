@@ -1,0 +1,16 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - ai_media
+id: svg_ai_gen
+label: 'Generated SVG with AI'
+description: 'An SVG graphic written by AI from a description and sanitised. Stored and displayed like any other SVG image.'
+source: ai_generated_image
+queue_thumbnail_downloads: false
+new_revision: true
+source_configuration:
+  source_field: field_media_svg_image
+  generator: svg
+field_map:
+  name: name

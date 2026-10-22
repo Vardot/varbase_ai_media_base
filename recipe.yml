@@ -1,0 +1,138 @@
+name: 'Varbase AI Media Base'
+description: 'Generate images, SVGs and documents with AI from the Media Library on Varbase 11, with the AI Media module: "Generated image with AI", "Generated SVG with AI" and "Generated document with AI" media types, offered right after Image in the Featured image fields and in Insert Media, with the permission granted to the editorial roles. No custom PHP or shell code.'
+type: 'Varbase AI'
+# Needs default AI providers for text_to_image (images) and chat (SVG and
+# documents);
+# varbase_ai_base sets them up.
+install:
+  - ai
+  - svg_image
+  - ai_media
+config:
+  strict: false
+  import:
+    ai_media: '*'
+  actions:
+    # Offer the AI tab wherever an editor picks a featured image, right after
+    # Image. A media library widget lists the allowed types in this order.
+    field.field.node.blog.field_featured_image:
+      setSettings:
+        handler: 'default:media'
+        handler_settings:
+          target_bundles:
+            image: image
+            image_ai_gen: image_ai_gen
+          sort:
+            field: _none
+            direction: ASC
+          auto_create: false
+          auto_create_bundle: ''
+    field.field.node.page.field_featured_image:
+      setSettings:
+        handler: 'default:media'
+        handler_settings:
+          target_bundles:
+            image: image
+            image_ai_gen: image_ai_gen
+          sort:
+            field: _none
+            direction: ASC
+          auto_create: false
+          auto_create_bundle: ''
+    core.entity_form_display.node.blog.default:
+      setComponent:
+        name: field_featured_image
+        options:
+          type: media_library_widget
+          weight: 7
+          region: content
+          settings:
+            media_types:
+              - image
+              - image_ai_gen
+    core.entity_form_display.node.page.default:
+      setComponent:
+        name: field_featured_image
+        options:
+          type: media_library_widget
+          weight: 3
+          region: content
+          settings:
+            media_types:
+              - image
+              - image_ai_gen
+    # CKEditor's Insert Media in Full HTML. content_format allows every type.
+    filter.format.full_html:
+      setFilterConfig:
+        instance_id: media_embed
+        configuration:
+          id: media_embed
+          provider: media
+          status: true
+          weight: -39
+          settings:
+            default_view_mode: large
+            allowed_view_modes:
+              large: large
+              medium: medium
+              original: original
+              small: small
+            allowed_media_types:
+              image: image
+              image_ai_gen: image_ai_gen
+              svg_ai_gen: svg_ai_gen
+              audio: audio
+              doc_ai_gen: doc_ai_gen
+              file: file
+              remote_video: remote_video
+              video: video
+    # Who may make one: the roles that already add images. Generating spends
+    # provider credit, so it has a permission of its own.
+    user.role.content_editor:
+      grantPermissions:
+        - 'generate media with ai'
+        - 'create image_ai_gen media'
+        - 'edit own image_ai_gen media'
+        - 'edit any image_ai_gen media'
+        - 'delete any image_ai_gen media'
+        - 'create svg_ai_gen media'
+        - 'edit own svg_ai_gen media'
+        - 'edit any svg_ai_gen media'
+        - 'delete any svg_ai_gen media'
+        - 'create doc_ai_gen media'
+        - 'edit own doc_ai_gen media'
+        - 'edit any doc_ai_gen media'
+        - 'delete any doc_ai_gen media'
+    user.role.content_admin:
+      grantPermissions:
+        - 'generate media with ai'
+        - 'create image_ai_gen media'
+        - 'edit own image_ai_gen media'
+        - 'edit any image_ai_gen media'
+        - 'delete any image_ai_gen media'
+        - 'create svg_ai_gen media'
+        - 'edit own svg_ai_gen media'
+        - 'edit any svg_ai_gen media'
+        - 'delete any svg_ai_gen media'
+        - 'create doc_ai_gen media'
+        - 'edit own doc_ai_gen media'
+        - 'edit any doc_ai_gen media'
+        - 'delete any doc_ai_gen media'
+    user.role.site_admin:
+      grantPermissions:
+        - 'generate media with ai'
+        - 'create image_ai_gen media'
+        - 'edit own image_ai_gen media'
+        - 'edit any image_ai_gen media'
+        - 'delete any image_ai_gen media'
+        - 'view any image_ai_gen media revisions'
+        - 'create svg_ai_gen media'
+        - 'edit own svg_ai_gen media'
+        - 'edit any svg_ai_gen media'
+        - 'delete any svg_ai_gen media'
+        - 'view any svg_ai_gen media revisions'
+        - 'create doc_ai_gen media'
+        - 'edit own doc_ai_gen media'
+        - 'edit any doc_ai_gen media'
+        - 'delete any doc_ai_gen media'
+        - 'view any doc_ai_gen media revisions'
