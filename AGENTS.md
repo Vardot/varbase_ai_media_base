@@ -2,8 +2,10 @@
 
 Guidance for AI coding agents working on the Varbase AI Media Base recipe.
 
-This is a **private** recipe on GitHub (`Vardot/varbase_ai_media_base`), not a drupal.org project.
-Issues, pull requests and CI all live on GitHub.
+This is a drupal.org project: [drupal.org/project/varbase_ai_media_base](https://www.drupal.org/project/varbase_ai_media_base).
+Issues live in its [issue queue](https://www.drupal.org/project/issues/varbase_ai_media_base) and merge requests on
+[git.drupalcode.org](https://git.drupalcode.org/project/varbase_ai_media_base). Its default branch is `1.0.x`; the
+GitHub repository is a mirror and takes no issues or pull requests.
 
 ## Before you start
 
@@ -13,8 +15,10 @@ Issues, pull requests and CI all live on GitHub.
 
 ## When you make a change
 
-- One issue and one pull request per change. The PR says `Closes #<issue>` and ends with the Checkpoints list from
-  `.github/pull_request_template.md`.
+- One drupal.org issue and one issue-fork merge request per change, titled `<type>: #<issue> Summary`. The MR
+  description ends with the Checkpoints list from `.gitlab/merge_request_templates/default.md`.
+- CI must be green before merging: `.gitlab-ci.yml` on git.drupalcode.org validates `composer.json` and lints
+  every YAML file.
 - Add an entry under `## [Unreleased]` in `CHANGELOG.md`.
 - No PHP in the repository: no `.php`, `.module`, `.install` or `.inc` file. Behaviour belongs in AI Media.
 - The `image_ai_gen`, `svg_ai_gen` and `doc_ai_gen` view and form displays are copies of the Varbase `image`,
