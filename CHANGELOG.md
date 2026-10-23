@@ -10,4 +10,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The recipe on drupal.org, with GitLab CI that validates `composer.json` and lints every YAML file
   ([#3632433](https://www.drupal.org/i/3632433)).
 ### Removed
+- The Generated document with AI media type: documents are not part of AI Media
+  ([#3632433](https://www.drupal.org/i/3632433)).
 - The GitHub Actions workflows and the `.github` templates: CI runs on git.drupalcode.org.

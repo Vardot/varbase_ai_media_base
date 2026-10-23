@@ -21,8 +21,8 @@ GitHub repository is a mirror and takes no issues or pull requests.
   every YAML file.
 - Add an entry under `## [Unreleased]` in `CHANGELOG.md`.
 - No PHP in the repository: no `.php`, `.module`, `.install` or `.inc` file. Behaviour belongs in AI Media.
-- The `image_ai_gen`, `svg_ai_gen` and `doc_ai_gen` view and form displays are copies of the Varbase `image`,
-  `svg_image` and `document` displays; when those change, copy them again rather than editing by hand.
+- The `image_ai_gen` and `svg_ai_gen` view and form displays are copies of the Varbase `image` and
+  `svg_image` displays; when those change, copy them again rather than editing by hand.
 - Config actions that set a whole value (`setSettings`, `setFilterConfig`, `setComponent`) must carry the existing
   values with them.
 - Never bump the version or tag a release without explicit maintainer approval. Tags are three-segment (`1.0.0`)

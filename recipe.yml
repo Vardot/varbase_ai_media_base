@@ -1,8 +1,7 @@
 name: 'Varbase AI Media Base'
-description: 'Generate images, SVGs and documents with AI from the Media Library on Varbase 11, with the AI Media module: "Generated image with AI", "Generated SVG with AI" and "Generated document with AI" media types, offered right after Image in the Featured image fields and in Insert Media, with the permission granted to the editorial roles. No custom PHP or shell code.'
+description: 'Generate images and SVGs with AI from the Media Library on Varbase 11, with the AI Media module: "Generated image with AI" and "Generated SVG with AI" media types, offered right after Image in the Featured image fields and in Insert Media, with the permission granted to the editorial roles. No custom PHP or shell code.'
 type: 'Varbase AI'
-# Needs default AI providers for text_to_image (images) and chat (SVG and
-# documents);
+# Needs default AI providers for text_to_image (images) and chat (SVG);
 # varbase_ai_base sets them up.
 install:
   - ai
@@ -82,7 +81,6 @@ config:
               image_ai_gen: image_ai_gen
               svg_ai_gen: svg_ai_gen
               audio: audio
-              doc_ai_gen: doc_ai_gen
               file: file
               remote_video: remote_video
               video: video
@@ -99,10 +97,6 @@ config:
         - 'edit own svg_ai_gen media'
         - 'edit any svg_ai_gen media'
         - 'delete any svg_ai_gen media'
-        - 'create doc_ai_gen media'
-        - 'edit own doc_ai_gen media'
-        - 'edit any doc_ai_gen media'
-        - 'delete any doc_ai_gen media'
     user.role.content_admin:
       grantPermissions:
         - 'generate media with ai'
@@ -114,10 +108,6 @@ config:
         - 'edit own svg_ai_gen media'
         - 'edit any svg_ai_gen media'
         - 'delete any svg_ai_gen media'
-        - 'create doc_ai_gen media'
-        - 'edit own doc_ai_gen media'
-        - 'edit any doc_ai_gen media'
-        - 'delete any doc_ai_gen media'
     user.role.site_admin:
       grantPermissions:
         - 'generate media with ai'
@@ -131,8 +121,3 @@ config:
         - 'edit any svg_ai_gen media'
         - 'delete any svg_ai_gen media'
         - 'view any svg_ai_gen media revisions'
-        - 'create doc_ai_gen media'
-        - 'edit own doc_ai_gen media'
-        - 'edit any doc_ai_gen media'
-        - 'delete any doc_ai_gen media'
-        - 'view any doc_ai_gen media revisions'
