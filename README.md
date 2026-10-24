@@ -42,3 +42,16 @@ Safe to apply twice.
 - Video needs a provider with **image_to_video**; none of OpenAI, Anthropic or
   amazee.io offers it yet, so no video type is added here.
 - Documents are not part of AI Media, so no document type is added here.
+
+## Tests
+
+A [varbase-e2e](https://www.npmjs.com/package/@vardot/varbase-e2e) suite in
+`tests/features` checks a Varbase 11 site with the recipe applied: the media
+types, the AI tab on the Featured image field, Insert Media in Full HTML and
+the editorial permissions. CI builds that site, applies the recipe twice and
+runs it (`varbase-e2e-test`). Locally:
+
+```bash
+npm install
+LAUNCH_URL=https://your-site.ddev.site npm test
+```

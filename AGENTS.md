@@ -17,8 +17,8 @@ GitHub repository is a mirror and takes no issues or pull requests.
 
 - One drupal.org issue and one issue-fork merge request per change, titled `<type>: #<issue> Summary`. The MR
   description ends with the Checkpoints list from `.gitlab/merge_request_templates/default.md`.
-- CI must be green before merging: `.gitlab-ci.yml` on git.drupalcode.org validates `composer.json` and lints
-  every YAML file.
+- CI must be green before merging: `.gitlab-ci.yml` on git.drupalcode.org validates `composer.json`, lints
+  every YAML file, and `varbase-e2e-test` applies the recipe twice on Varbase 11 and runs `tests/features`.
 - Add an entry under `## [Unreleased]` in `CHANGELOG.md`.
 - No PHP in the repository: no `.php`, `.module`, `.install` or `.inc` file. Behaviour belongs in AI Media.
 - The `image_ai_gen` and `svg_ai_gen` view and form displays are copies of the Varbase `image` and

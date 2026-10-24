@@ -29,10 +29,9 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "drupal/ai": "^1.4",
+        "drupal/ai": "^1.5",
         "drupal/ai_media": "^1.0@dev",
         "drupal/core": "^11.4",
-        "drupal/svg_image": "^3.0",
-        "enshrined/svg-sanitize": ">=0.15 <1.0"
+        "drupal/svg_image": "^3.2.5"
     }
 }

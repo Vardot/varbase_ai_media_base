@@ -1,20 +1,15 @@
 ################################################################################
-# Basic build + validate GitLab CI for the Varbase AI Media Base recipe.
-#
-# Mirrors the build / validate stages of the Varbase project template, reduced
-# to the minimum a recipe needs: validate composer.json (build) and lint every
-# YAML file - recipe.yml + config (validate). No dependency install / browser
-# tests here (kept basic).
+# GitLab CI for the Varbase AI Media Base recipe: validate composer.json
+# (build), lint every YAML file (validate), then apply the recipe twice on a
+# fresh Varbase 11 site and run the varbase-e2e suite on it (test).
 ################################################################################
 
 stages:
   - build
   - validate
+  - test
 
 variables:
-  # Drupal 11.4.0 released 2026-07-01; pinned templates ref $CORE_STABLE is still 11.3.
-  DRUPAL_CORE: "11.4.0"
-  IGNORE_PROJECT_DRUPAL_CORE_VERSION: "1"
   COMPOSER_ALLOW_SUPERUSER: "1"
   COMPOSER_MEMORY_LIMIT: "-1"
 
@@ -52,3 +47,71 @@ validate:yaml-lint:
       print('Checked YAML files; errors:', bad)
       sys.exit(1 if bad else 0)
       PY
+
+# = test = a fresh Varbase 11 site, the recipe applied twice, then the suite.
+varbase-e2e-test:
+  stage: test
+  needs: []
+  image: registry.gitlab.com/drupal-infrastructure/drupalci/drupalci-environments/php-8.4-ubuntu-apache:production
+  services:
+    - name: registry.gitlab.com/drupal-infrastructure/drupalci/drupalci-environments/mysql-8:production
+      alias: database
+  timeout: 60m
+  variables:
+    MYSQL_ROOT_PASSWORD: root
+    MYSQL_DATABASE: mysql
+    MYSQL_USER: drupaltestbot
+    MYSQL_PASSWORD: drupaltestbotpw
+    LAUNCH_URL: "http://localhost"
+    LOGIN_USER: "webmaster"
+    LOGIN_PASS: "dD.123123ddd"
+    HEADLESS: "true"
+    SLOW_MO: "0"
+    BROWSER: "chromium"
+    _BUILD_DIR: "/tmp/site-build"
+  artifacts:
+    when: on_failure
+    paths:
+      - tests/reports
+      - tests/screenshots
+      - tests/videos
+    expire_in: 1 week
+  before_script:
+    # Node 22 from the tarball.
+    - curl -fsSL https://nodejs.org/dist/latest-v22.x/ -o /tmp/node-index.html
+    - NODE_TARBALL=$(grep -oE 'node-v22\.[0-9.]+-linux-x64\.tar\.gz' /tmp/node-index.html | head -1)
+    - curl -fsSL "https://nodejs.org/dist/latest-v22.x/$NODE_TARBALL" -o /tmp/node.tar.gz
+    - tar -xzf /tmp/node.tar.gz -C /usr/local --strip-components=1
+    # varbase-e2e's postinstall scaffolds files; keep ours.
+    - cp cucumber.js /tmp/cucumber.js.bak
+    - npm install --no-audit --no-fund
+    - cp /tmp/cucumber.js.bak cucumber.js
+    - git checkout -- tests/ playwright.config.ts 2>/dev/null || true
+    - git clean -fdq tests/ 2>/dev/null || true
+    - ./node_modules/.bin/playwright install --with-deps chromium
+    # Varbase 11 with this recipe from the checkout and AI Media 1.0.x-dev.
+    - composer create-project "drupal/varbase_project:~11.0.0" $_BUILD_DIR --no-interaction --no-progress --no-install
+    - cd $_BUILD_DIR
+    - composer config minimum-stability dev
+    - composer config prefer-stable true
+    - composer config allow-plugins true -n
+    - composer config repositories.recipe '{"type":"path","url":"'"$CI_PROJECT_DIR"'","options":{"symlink":false}}'
+    - composer require "drupal/varbase_ai_media_base:*@dev" --with-all-dependencies --no-interaction --no-progress
+    - DRUSH="$_BUILD_DIR/$(composer config bin-dir)/drush --root=$_BUILD_DIR/web"
+    - mkdir -p web/sites/default/files && chmod -R 777 web/sites/default/files
+    - rm -rf /var/www/html && ln -s $_BUILD_DIR/web /var/www/html
+    - $DRUSH site:install varbase --db-url=mysql://$MYSQL_USER:$MYSQL_PASSWORD@database/$MYSQL_DATABASE --account-name=webmaster --account-pass=$LOGIN_PASS --site-name="Varbase AI Media Base CI" --locale=en varbase_extra_components.varbase_blog=true install_configure_form.enable_update_status_emails=NULL -y
+    # Varbase's form protection and login flood limits, off for the robot.
+    - $DRUSH pm:uninstall antibot -y || true
+    - $DRUSH config:set honeypot.settings time_limit 0 -y || true
+    - $DRUSH config:set user.flood ip_limit 1000000 -y
+    - $DRUSH config:set user.flood user_limit 1000000 -y
+    # Applied twice: the second run must change nothing and not fail.
+    - $DRUSH recipe $_BUILD_DIR/recipes/varbase_ai_media_base -y
+    - $DRUSH recipe $_BUILD_DIR/recipes/varbase_ai_media_base -y
+    - $DRUSH cache:rebuild
+  script:
+    - chown -R www-data:www-data $_BUILD_DIR
+    - service apache2 start
+    - cd "$CI_PROJECT_DIR"
+    - npm test
