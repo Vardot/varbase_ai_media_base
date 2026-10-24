@@ -30,7 +30,7 @@
     "prefer-stable": true,
     "require": {
         "drupal/ai": "^1.5",
-        "drupal/ai_media": "^1.0@dev",
+        "drupal/ai_media": "^1.0@alpha",
         "drupal/core": "^11.4",
         "drupal/svg_image": "^3.2.5"
     }
