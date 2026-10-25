@@ -21,9 +21,9 @@ Safe to apply twice.
 ## Tests
 
 A [varbase-e2e](https://www.npmjs.com/package/@vardot/varbase-e2e) suite in
-`tests/features` checks a Varbase 11 site with the recipe applied: the media
-types, the AI tab on the Featured image field, Insert Media in Full HTML and
-the editorial permissions. CI builds that site, applies the recipe twice and
+`tests/features` checks a Varbase 11 site with the recipe applied: the
+mapping to Image and SVG Image, Insert Media in Full HTML and the editorial
+permissions. CI builds that site, applies the recipe twice and
 runs it (`varbase-e2e-test`). Locally:
 
 ```bash

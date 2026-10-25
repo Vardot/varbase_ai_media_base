@@ -6,11 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Generated images are saved as Image media and generated SVGs as SVG Image, with the AI tabs right
+  after them; the recipe no longer adds its own media types. Requires AI Media 1.0.0-alpha2 or later.
+  Sites on 1.0.0-alpha1: delete the "Generated image with AI" and "Generated SVG with AI" media types
+  first ([#3633062](https://www.drupal.org/i/3633062)).
+- Move the documentation to docs.varbase.vardot.com ([#3633024](https://www.drupal.org/i/3633024)).
 ### Added
 - SVG Image in Insert Media for Full HTML, so "Generate SVG with AI" sits right after it
   ([#3632433](https://www.drupal.org/i/3632433)).
-### Changed
-- Move the documentation to docs.varbase.vardot.com ([#3633024](https://www.drupal.org/i/3633024)).
+### Removed
+- The `image_ai_gen` and `svg_ai_gen` media types and their fields and displays
+  ([#3633062](https://www.drupal.org/i/3633062)).
 
 ## [1.0.0-alpha1] - 2026-10-24
 ### Added

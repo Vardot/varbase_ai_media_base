@@ -21,8 +21,6 @@ GitHub repository is a mirror and takes no issues or pull requests.
   every YAML file, and `varbase-e2e-test` applies the recipe twice on Varbase 11 and runs `tests/features`.
 - Add an entry under `## [Unreleased]` in `CHANGELOG.md`.
 - No PHP in the repository: no `.php`, `.module`, `.install` or `.inc` file. Behaviour belongs in AI Media.
-- The `image_ai_gen` and `svg_ai_gen` view and form displays are copies of the Varbase `image` and
-  `svg_image` displays; when those change, copy them again rather than editing by hand.
 - Config actions that set a whole value (`setSettings`, `setFilterConfig`, `setComponent`) must carry the existing
   values with them.
 - Never bump the version or tag a release without explicit maintainer approval. Tags are three-segment (`1.0.0`)
