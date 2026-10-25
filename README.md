@@ -12,7 +12,8 @@ module.
 | Generated SVG with AI (`svg_ai_gen`) | SVG (`chat`, sanitised) | Full HTML **Insert Media** |
 
 - Each tab reads **Generate … with AI**, is marked **New**, and sits right
-  after Image.
+  after the type it stands in for: Image, or SVG Image (also allowed in Full
+  HTML Insert Media).
 - Each type carries every Varbase view mode of its non-AI counterpart (Image,
   SVG image), stores files in `ai-generated/YYYY-MM`, and is
   translatable.

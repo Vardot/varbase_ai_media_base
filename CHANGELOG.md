@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- SVG Image in Insert Media for Full HTML, so "Generate SVG with AI" sits right after it
+  ([#3632433](https://www.drupal.org/i/3632433)).
 
 ## [1.0.0-alpha1] - 2026-10-24
 ### Added

@@ -60,7 +60,8 @@ config:
             media_types:
               - image
               - image_ai_gen
-    # CKEditor's Insert Media in Full HTML. content_format allows every type.
+    # CKEditor's Insert Media in Full HTML, with SVG Image so the AI SVG tab
+    # follows it. content_format allows every type.
     filter.format.full_html:
       setFilterConfig:
         instance_id: media_embed
@@ -79,6 +80,7 @@ config:
             allowed_media_types:
               image: image
               image_ai_gen: image_ai_gen
+              svg_image: svg_image
               svg_ai_gen: svg_ai_gen
               audio: audio
               file: file
