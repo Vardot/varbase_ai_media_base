@@ -9,7 +9,7 @@ GitHub repository is a mirror and takes no issues or pull requests.
 
 ## Before you start
 
-- **`README.md`**: what the recipe adds, what it needs, and the known limits.
+- **Documentation** lives on the Varbase docs site: [docs.varbase.vardot.com](https://docs.varbase.vardot.com/developers/understanding-varbase/varbase-ai-recipes/varbase-ai-media-base). Keep `README.md` short and link there; add no `docs/` folder.
 - **`CHANGELOG.md`**: what changed in each release, and where it was checked.
 - The module it configures: AI Media (`Vardot/ai_media`, to be released as drupal.org/project/ai_media).
 

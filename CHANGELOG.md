@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - SVG Image in Insert Media for Full HTML, so "Generate SVG with AI" sits right after it
   ([#3632433](https://www.drupal.org/i/3632433)).
+### Changed
+- Move the documentation to docs.varbase.vardot.com ([#3633024](https://www.drupal.org/i/3633024)).
 
 ## [1.0.0-alpha1] - 2026-10-24
 ### Added
