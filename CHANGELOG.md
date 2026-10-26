@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Back to dev: require AI Media 1.0.x-dev (`drupal/ai_media: 1.0.x-dev`) on the 1.0.x branch
+  ([#3633093](https://www.drupal.org/i/3633093)).
 
 ## [1.0.0-alpha2] - 2026-10-25
 ### Changed
