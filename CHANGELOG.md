@@ -6,9 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.0-beta1] - 2026-10-29
 ### Changed
-- Back to dev: require AI Media 1.0.x-dev (`drupal/ai_media: 1.0.x-dev`) on the 1.0.x branch
-  ([#3633673](https://www.drupal.org/i/3633673)).
+- Require AI Media 1.0.0-beta1 or later (`drupal/ai_media: ^1.0.0-beta1`): Generate with AI sits
+  inside each media type's tab as an "Upload | Generate with AI" switch, examples and the AI
+  disclosure are in tooltips, the name and alt text of a generated image are written by AI from the
+  image, and Focal Point works on a generated image ([#3633992](https://www.drupal.org/i/3633992)).
+- Disable telemetry in CI (`DRUPAL_CMS_TELEMETRY=0`) ([#3633857](https://www.drupal.org/i/3633857)).
+### Added
+- A Claude Code agent and skill for applying and verifying Varbase AI Media
+  ([#3633782](https://www.drupal.org/i/3633782)).
 
 ## [1.0.0-alpha3] - 2026-10-28
 ### Changed
@@ -46,7 +54,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ([#3632433](https://www.drupal.org/i/3632433)).
 - The GitHub Actions workflows and the `.github` templates: CI runs on git.drupalcode.org.
 
-[Unreleased]: https://git.drupalcode.org/project/varbase_ai_media_base/-/compare/1.0.0-alpha3...1.0.x
+[Unreleased]: https://git.drupalcode.org/project/varbase_ai_media_base/-/compare/1.0.0-beta1...1.0.x
+[1.0.0-beta1]: https://git.drupalcode.org/project/varbase_ai_media_base/-/tree/1.0.0-beta1
 [1.0.0-alpha3]: https://git.drupalcode.org/project/varbase_ai_media_base/-/tree/1.0.0-alpha3
 [1.0.0-alpha2]: https://git.drupalcode.org/project/varbase_ai_media_base/-/tree/1.0.0-alpha2
 [1.0.0-alpha1]: https://git.drupalcode.org/project/varbase_ai_media_base/-/tree/1.0.0-alpha1
