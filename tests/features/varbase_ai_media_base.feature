@@ -32,3 +32,8 @@ Feature: Varbase AI Media Base on Varbase 11
       | content_editor |
       | content_admin  |
       | site_admin     |
+
+  Scenario: Site admins may change the AI Media settings, not the AI providers
+     When I go to "/admin/people/permissions/site_admin"
+     Then "input[name='site_admin[administer ai media]']:checked" should have a count of 1
+      And "input[name='site_admin[administer ai]']:checked" should have a count of 0

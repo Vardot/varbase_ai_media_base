@@ -33,8 +33,10 @@ config:
         - 'generate media with ai'
         - 'create image media'
         - 'create svg_image media'
+    # Site admins also run the AI Media settings; providers stay with Drupal AI.
     user.role.site_admin:
       grantPermissions:
+        - 'administer ai media'
         - 'generate media with ai'
         - 'create image media'
         - 'create svg_image media'
