@@ -6,9 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.0-rc1] - 2026-11-05
 ### Changed
-- Back to dev: require AI Media 1.0.x-dev (`drupal/ai_media: 1.0.x-dev`) on the 1.0.x branch
-  ([#3633992](https://www.drupal.org/i/3633992)).
+- Require AI Media 1.0.0-rc1 or later (`drupal/ai_media: ^1.0.0-rc1`): the name and alternative text
+  are written in the language of the description, the review panel names the model, and the release
+  carries accessibility, security and Media Library dialog fixes ([#3635606](https://www.drupal.org/i/3635606)).
+- Grant `administer ai media` to the Site admin role, so site admins can run the AI Media settings
+  ([#3634877](https://www.drupal.org/i/3634877)).
 
 ## [1.0.0-beta1] - 2026-10-29
 ### Changed
@@ -57,7 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ([#3632433](https://www.drupal.org/i/3632433)).
 - The GitHub Actions workflows and the `.github` templates: CI runs on git.drupalcode.org.
 
-[Unreleased]: https://git.drupalcode.org/project/varbase_ai_media_base/-/compare/1.0.0-beta1...1.0.x
+[Unreleased]: https://git.drupalcode.org/project/varbase_ai_media_base/-/compare/1.0.0-rc1...1.0.x
+[1.0.0-rc1]: https://git.drupalcode.org/project/varbase_ai_media_base/-/tree/1.0.0-rc1
 [1.0.0-beta1]: https://git.drupalcode.org/project/varbase_ai_media_base/-/tree/1.0.0-beta1
 [1.0.0-alpha3]: https://git.drupalcode.org/project/varbase_ai_media_base/-/tree/1.0.0-alpha3
 [1.0.0-alpha2]: https://git.drupalcode.org/project/varbase_ai_media_base/-/tree/1.0.0-alpha2
