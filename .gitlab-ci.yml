@@ -78,10 +78,10 @@ varbase-e2e-test:
       - tests/videos
     expire_in: 1 week
   before_script:
-    # Node 22 from the tarball.
-    - curl -fsSL https://nodejs.org/dist/latest-v22.x/ -o /tmp/node-index.html
-    - NODE_TARBALL=$(grep -oE 'node-v22\.[0-9.]+-linux-x64\.tar\.gz' /tmp/node-index.html | head -1)
-    - curl -fsSL "https://nodejs.org/dist/latest-v22.x/$NODE_TARBALL" -o /tmp/node.tar.gz
+    # Node 24 from the tarball.
+    - curl -fsSL https://nodejs.org/dist/latest-v24.x/ -o /tmp/node-index.html
+    - NODE_TARBALL=$(grep -oE 'node-v24\.[0-9.]+-linux-x64\.tar\.gz' /tmp/node-index.html | head -1)
+    - curl -fsSL "https://nodejs.org/dist/latest-v24.x/$NODE_TARBALL" -o /tmp/node.tar.gz
     - tar -xzf /tmp/node.tar.gz -C /usr/local --strip-components=1
     # varbase-e2e's postinstall scaffolds files; keep ours.
     - cp cucumber.js /tmp/cucumber.js.bak
