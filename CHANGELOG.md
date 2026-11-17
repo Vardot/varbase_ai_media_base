@@ -6,12 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.0] - 2026-11-17
 ### Changed
+- Require AI Media 1.0.0 or later (`drupal/ai_media: ^1.0.0`)
+  ([#3638872](https://www.drupal.org/i/3638872)).
 - Organize the varbase-e2e functional acceptance tests by feature, check the installed modules, and run CI in
   build, validate, pre-test, test and report stages with one merged report
   ([#3638864](https://www.drupal.org/i/3638864)).
-- Back to dev: require AI Media 1.0.x-dev (`drupal/ai_media: 1.0.x-dev`) on the 1.0.x branch
-  ([#3638779](https://www.drupal.org/i/3638779)).
 
 ## [1.0.0-rc3] - 2026-11-17
 ### Changed
@@ -81,7 +83,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   ([#3632433](https://www.drupal.org/i/3632433)).
 - The GitHub Actions workflows and the `.github` templates: CI runs on git.drupalcode.org.
 
-[Unreleased]: https://git.drupalcode.org/project/varbase_ai_media_base/-/compare/1.0.0-rc3...1.0.x
+[Unreleased]: https://git.drupalcode.org/project/varbase_ai_media_base/-/compare/1.0.0...1.0.x
+[1.0.0]: https://git.drupalcode.org/project/varbase_ai_media_base/-/tree/1.0.0
 [1.0.0-rc3]: https://git.drupalcode.org/project/varbase_ai_media_base/-/tree/1.0.0-rc3
 [1.0.0-rc2]: https://git.drupalcode.org/project/varbase_ai_media_base/-/tree/1.0.0-rc2
 [1.0.0-rc1]: https://git.drupalcode.org/project/varbase_ai_media_base/-/tree/1.0.0-rc1
