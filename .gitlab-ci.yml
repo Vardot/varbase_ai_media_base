@@ -1,13 +1,22 @@
 ################################################################################
-# GitLab CI for the Varbase AI Media Base recipe: validate composer.json
-# (build), lint every YAML file (validate), then apply the recipe twice on a
-# fresh Varbase 11 site and run the varbase-e2e suite on it (test).
+# GitLab CI for the Varbase AI Media Base recipe.
+#
+# build    - validate composer.json.
+# validate - lint every YAML file, and a dry run that resolves every step of
+#            the varbase-e2e suite.
+# pre-test - build a fresh Varbase 11 site, apply the recipe twice and dump
+#            the database (gzip). The built site and the downloads are cached.
+# test     - restore the dump, serve the site with Apache and run the
+#            varbase-e2e suite.
+# report   - merge every test job's cucumber JSON into one HTML and PDF report.
 ################################################################################
 
 stages:
   - build
   - validate
+  - pre-test
   - test
+  - report
 
 variables:
   COMPOSER_ALLOW_SUPERUSER: "1"
@@ -41,6 +50,8 @@ validate:yaml-lint:
       import glob, sys, yaml
       bad = 0
       for f in sorted(glob.glob('**/*.yml', recursive=True)):
+          if f.startswith('node_modules/'):
+              continue
           try:
               list(yaml.safe_load_all(open(f, encoding='utf-8')))
           except Exception as e:
@@ -49,15 +60,35 @@ validate:yaml-lint:
       sys.exit(1 if bad else 0)
       PY
 
-# = test = a fresh Varbase 11 site, the recipe applied twice, then the suite.
-varbase-e2e-test:
-  stage: test
+# Every step of every feature resolves to one definition, no browser.
+# cucumber-js exits 0 on a dry run even with an undefined or ambiguous step,
+# so the summary is checked.
+'🧩 varbase-e2e dry run':
+  stage: validate
   needs: []
+  image: node:24
+  variables:
+    VARBASE_E2E_REPORT_DISABLE: "1"
+  script:
+    # No scripts: varbase-e2e's postinstall would scaffold over our files.
+    - npm install --no-audit --no-fund --ignore-scripts
+    - set -o pipefail; CUCUMBER_TAGS='not @wip' npm test -- --dry-run | tee /tmp/dry-run.log
+    - grep -qE '^[0-9]+ steps? \(' /tmp/dry-run.log
+    - if grep -E '[0-9]+ (undefined|ambiguous)' /tmp/dry-run.log; then exit 1; fi
+
+.e2e-site:
   image: registry.gitlab.com/drupal-infrastructure/drupalci/drupalci-environments/php-8.4-ubuntu-apache:production
   services:
     - name: registry.gitlab.com/drupal-infrastructure/drupalci/drupalci-environments/mysql-8:production
       alias: database
+  allow_failure: false
   timeout: 60m
+  retry:
+    max: 1
+    when:
+      - job_execution_timeout
+      - stuck_or_timeout_failure
+      - runner_system_failure
   variables:
     MYSQL_ROOT_PASSWORD: root
     MYSQL_DATABASE: mysql
@@ -66,31 +97,62 @@ varbase-e2e-test:
     LAUNCH_URL: "http://localhost"
     LOGIN_USER: "webmaster"
     LOGIN_PASS: "dD.123123ddd"
-    HEADLESS: "true"
-    SLOW_MO: "0"
-    BROWSER: "chromium"
     _BUILD_DIR: "/tmp/site-build"
+    # What the build job hands the test job: composer files, settings,
+    # public files and the database dump.
+    E2E_SITE: "$CI_PROJECT_DIR/e2e-site"
+    # The built site, cached; moved back to $_BUILD_DIR before use.
+    E2E_SITE_CACHE: "$CI_PROJECT_DIR/.cache/site"
+    # Download caches live in the project so GitLab can cache them.
+    COMPOSER_CACHE_DIR: "$CI_PROJECT_DIR/.cache/composer"
+    npm_config_cache: "$CI_PROJECT_DIR/.cache/npm"
+    PLAYWRIGHT_BROWSERS_PATH: "$CI_PROJECT_DIR/.cache/ms-playwright"
+
+# node_modules, the npm cache and the headless Chromium.
+.e2e-browser-cache: &e2e_browser_cache
+  key:
+    files:
+      - package.json
+    prefix: varbase-ai-media-base-e2e-browser-v1
+  paths:
+    - node_modules
+    - .cache/npm
+    - .cache/ms-playwright
+
+# The built site, one cache per branch.
+.e2e-site-cache: &e2e_site_cache
+  key: varbase-ai-media-base-e2e-site-$CI_COMMIT_REF_SLUG-v1
+  paths:
+    - .cache/site
+
+# Composer downloads.
+.e2e-composer-cache: &e2e_composer_cache
+  key: varbase-ai-media-base-e2e-composer-v1
+  paths:
+    - .cache/composer
+
+.e2e-fragments:
+  site:
+    - DRUSH="$_BUILD_DIR/$(composer config bin-dir)/drush --root=$_BUILD_DIR/web"
+    - mkdir -p web/sites/default/files && chmod -R 777 web/sites/default/files
+
+# = pre-test = a fresh Varbase 11 site with this recipe from the checkout and
+# AI Media 1.0.x-dev, the recipe applied twice, then a database dump.
+'🏗️ Varbase site':
+  extends: .e2e-site
+  stage: pre-test
+  needs: []
+  cache:
+    - <<: *e2e_site_cache
+      policy: push
+    - <<: *e2e_composer_cache
+      policy: pull-push
   artifacts:
-    when: on_failure
+    when: on_success
     paths:
-      - tests/reports
-      - tests/screenshots
-      - tests/videos
-    expire_in: 1 week
+      - e2e-site
+    expire_in: 1 day
   before_script:
-    # Node 24 from the tarball.
-    - curl -fsSL https://nodejs.org/dist/latest-v24.x/ -o /tmp/node-index.html
-    - NODE_TARBALL=$(grep -oE 'node-v24\.[0-9.]+-linux-x64\.tar\.gz' /tmp/node-index.html | head -1)
-    - curl -fsSL "https://nodejs.org/dist/latest-v24.x/$NODE_TARBALL" -o /tmp/node.tar.gz
-    - tar -xzf /tmp/node.tar.gz -C /usr/local --strip-components=1
-    # varbase-e2e's postinstall scaffolds files; keep ours.
-    - cp cucumber.js /tmp/cucumber.js.bak
-    - npm install --no-audit --no-fund
-    - cp /tmp/cucumber.js.bak cucumber.js
-    - git checkout -- tests/ playwright.config.ts 2>/dev/null || true
-    - git clean -fdq tests/ 2>/dev/null || true
-    - ./node_modules/.bin/playwright install --with-deps chromium
-    # Varbase 11 with this recipe from the checkout and AI Media 1.0.x-dev.
     - composer create-project "drupal/varbase_project:~11.0.0" $_BUILD_DIR --no-interaction --no-progress --no-install
     - cd $_BUILD_DIR
     - composer config minimum-stability dev
@@ -98,21 +160,131 @@ varbase-e2e-test:
     - composer config allow-plugins true -n
     - composer config repositories.recipe '{"type":"path","url":"'"$CI_PROJECT_DIR"'","options":{"symlink":false}}'
     - composer require "drupal/varbase_ai_media_base:*@dev" --with-all-dependencies --no-interaction --no-progress
-    - DRUSH="$_BUILD_DIR/$(composer config bin-dir)/drush --root=$_BUILD_DIR/web"
-    - mkdir -p web/sites/default/files && chmod -R 777 web/sites/default/files
-    - rm -rf /var/www/html && ln -s $_BUILD_DIR/web /var/www/html
-    - $DRUSH site:install varbase --db-url=mysql://$MYSQL_USER:$MYSQL_PASSWORD@database/$MYSQL_DATABASE --account-name=webmaster --account-pass=$LOGIN_PASS --site-name="Varbase AI Media Base CI" --locale=en varbase_extra_components.varbase_blog=true install_configure_form.enable_update_status_emails=NULL -y
+    - !reference [.e2e-fragments, site]
+    # The database is MySQL's own: note its tables, so only Drupal's are dumped.
+    - $DRUSH sql:query --db-url=mysql://$MYSQL_USER:$MYSQL_PASSWORD@database/$MYSQL_DATABASE "SHOW TABLES" > /tmp/db-tables-before.txt
+    - $DRUSH site:install varbase --db-url=mysql://$MYSQL_USER:$MYSQL_PASSWORD@database/$MYSQL_DATABASE --account-name=$LOGIN_USER --account-pass=$LOGIN_PASS --site-name="Varbase AI Media Base CI" --locale=en varbase_extra_components.varbase_blog=true install_configure_form.enable_update_status_emails=NULL -y
+  script:
     # Varbase's form protection and login flood limits, off for the robot.
-    - $DRUSH pm:uninstall antibot -y || true
-    - $DRUSH config:set honeypot.settings time_limit 0 -y || true
+    - $DRUSH pm:uninstall antibot -y
+    - $DRUSH config:set honeypot.settings time_limit 0 -y
     - $DRUSH config:set user.flood ip_limit 1000000 -y
     - $DRUSH config:set user.flood user_limit 1000000 -y
     # Applied twice: the second run must change nothing and not fail.
     - $DRUSH recipe $_BUILD_DIR/recipes/varbase_ai_media_base -y
     - $DRUSH recipe $_BUILD_DIR/recipes/varbase_ai_media_base -y
     - $DRUSH cache:rebuild
+    - mkdir -p "$E2E_SITE"
+    - cp composer.json composer.lock web/sites/default/settings.php "$E2E_SITE/"
+    - tar -czf "$E2E_SITE/files.tar.gz" -C web/sites/default --exclude=files/php --exclude=files/css --exclude=files/js --exclude=files/styles files
+    - $DRUSH sql:query "SHOW TABLES" | grep -vxF -f /tmp/db-tables-before.txt | paste -sd, - > /tmp/site-tables.txt
+    - test -s /tmp/site-tables.txt
+    - $DRUSH sql:dump --tables-list="$(cat /tmp/site-tables.txt)" --gzip --result-file="$E2E_SITE/db.sql"
+    - ls -lh "$E2E_SITE"
+    # Cache the built site for the test job.
+    - cd "$CI_PROJECT_DIR"
+    - rm -rf "$E2E_SITE_CACHE" && mkdir -p .cache && mv "$_BUILD_DIR" "$E2E_SITE_CACHE"
+
+# = test = restore the site, serve it with Apache and run the suite.
+'🧪 functional (Varbase)':
+  extends: .e2e-site
+  stage: test
+  needs: ['🏗️ Varbase site']
+  cache:
+    - <<: *e2e_browser_cache
+      policy: pull-push
+    - <<: *e2e_site_cache
+      policy: pull
+    - <<: *e2e_composer_cache
+      policy: pull
+  variables:
+    HEADLESS: "true"
+    SLOW_MO: "0"
+    BROWSER: "chromium"
+    FORCE_COLOR: "1"
+    # The job writes its report in after_script.
+    VARBASE_E2E_REPORT_DISABLE: "1"
+    CUCUMBER_JSON: "cucumber_report--varbase--all"
+  artifacts:
+    when: always
+    paths:
+      - tests/reports
+      - tests/screenshots
+      - tests/videos
+    expire_in: 30 days
+  before_script:
+    # Node 24 from the tarball.
+    - curl -fsSL https://nodejs.org/dist/latest-v24.x/ -o /tmp/node-index.html
+    - NODE_TARBALL=$(grep -oE 'node-v24\.[0-9.]+-linux-x64\.tar\.gz' /tmp/node-index.html | head -1)
+    - curl -fsSL "https://nodejs.org/dist/latest-v24.x/$NODE_TARBALL" -o /tmp/node.tar.gz
+    - tar -xzf /tmp/node.tar.gz -C /usr/local --strip-components=1
+    - case "$(node -v)" in v24.*) ;; *) echo "Expected Node 24, got $(node -v)"; exit 1 ;; esac
+    # No scripts: varbase-e2e's postinstall would scaffold over our files.
+    - npm install --no-audit --no-fund --ignore-scripts
+    - ./node_modules/.bin/playwright install --with-deps --only-shell chromium
+    # The cached site when it is the build job's own, else composer install
+    # from the build job's lock file.
+    - |
+      if [ -f "$E2E_SITE_CACHE/composer.lock" ] && cmp -s "$E2E_SITE_CACHE/composer.lock" "$E2E_SITE/composer.lock"; then
+        echo "Using the cached site"
+        rm -rf "$_BUILD_DIR" && mv "$E2E_SITE_CACHE" "$_BUILD_DIR"
+        cd "$_BUILD_DIR"
+      else
+        echo "No cached site for this lock file: composer install"
+        composer create-project "drupal/varbase_project:~11.0.0" $_BUILD_DIR --no-interaction --no-progress --no-install
+        cd $_BUILD_DIR
+        cp "$E2E_SITE/composer.json" "$E2E_SITE/composer.lock" .
+        composer install --no-interaction --no-progress
+      fi
+    - !reference [.e2e-fragments, site]
+    - tar -xzf "$E2E_SITE/files.tar.gz" -C web/sites/default
+    - chmod u+w web/sites/default && cp "$E2E_SITE/settings.php" web/sites/default/settings.php
+    - $DRUSH sql:query --file="$E2E_SITE/db.sql.gz"
+    - $DRUSH cache:rebuild
   script:
     - chown -R www-data:www-data $_BUILD_DIR
+    - rm -rf /var/www/html && ln -s $_BUILD_DIR/web /var/www/html
     - service apache2 start
     - cd "$CI_PROJECT_DIR"
     - npm test
+  after_script:
+    - cd "$CI_PROJECT_DIR"
+    - export REPORT="varbase-ai-media-base--${CI_COMMIT_REF_SLUG:-local}--varbase--functional-testing-report"
+    - node ./node_modules/@vardot/varbase-e2e/bin/generate-reports.js
+        --json "tests/reports/$CUCUMBER_JSON.json"
+        --out "tests/reports/$REPORT.html"
+        --format all
+        --pdf-out "tests/reports/$REPORT.pdf"
+        --title "Varbase AI Media Base (Varbase 11)"
+
+# = report = every test job's cucumber JSON, merged into one HTML and PDF
+# report. when: always, so a red test job still gets the report.
+'📊 Create reports':
+  stage: report
+  image: node:24
+  needs: ['🧪 functional (Varbase)']
+  when: always
+  variables:
+    VARBASE_E2E_REPORT_DISABLE: "1"
+  before_script:
+    - apt-get update -qq && apt-get install -y -qq jq > /dev/null
+    - npm install --no-audit --no-fund --ignore-scripts
+    # Chromium prints the PDF.
+    - ./node_modules/.bin/playwright install --with-deps --only-shell chromium
+  script:
+    - ls tests/reports/cucumber_report--*.json
+    - jq -s 'add' tests/reports/cucumber_report--*.json > tests/reports/cucumber_report.json
+    - export REPORT="varbase-ai-media-base--${CI_COMMIT_REF_SLUG}--functional-testing-report--$(date +%Y-%m-%d)--$(date +%H-%M)"
+    - node ./node_modules/@vardot/varbase-e2e/bin/generate-reports.js
+        --json tests/reports/cucumber_report.json
+        --out "tests/reports/$REPORT.html"
+        --format all
+        --pdf-out "tests/reports/$REPORT.pdf"
+        --title "Varbase AI Media Base functional testing"
+  artifacts:
+    when: always
+    paths:
+      - tests/reports
+      - tests/screenshots
+    expire_in: 30 days
+  allow_failure: false

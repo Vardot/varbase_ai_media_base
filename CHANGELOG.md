@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+- Organize the varbase-e2e functional acceptance tests by feature, check the installed modules, and run CI in
+  build, validate, pre-test, test and report stages with one merged report
+  ([#3638864](https://www.drupal.org/i/3638864)).
 - Back to dev: require AI Media 1.0.x-dev (`drupal/ai_media: 1.0.x-dev`) on the 1.0.x branch
   ([#3638779](https://www.drupal.org/i/3638779)).
 

@@ -4,14 +4,22 @@
 
 const password = process.env.LOGIN_PASS || 'dD.123123ddd';
 
+// varbase-e2e sets the step timeout from this when its steps load.
+process.env.VARBASE_E2E_STEP_TIMEOUT = process.env.VARBASE_E2E_STEP_TIMEOUT || '60000';
+
+// CUCUMBER_JSON names one CI job's report, e.g. cucumber_report--varbase--all.
+const reportName = process.env.CUCUMBER_JSON || 'cucumber_report';
+
 module.exports = {
   default: {
-    timeout: 60000,
+    // One retry absorbs a step timeout from runner load.
+    retry: 1,
     requireModule: ['tsx/cjs'],
     require: ['node_modules/@vardot/varbase-e2e/tests/step-definitions/**/*.js'],
-    paths: ['tests/features/**/*.feature'],
+    // FEATURES runs part of the suite, e.g. "tests/features/03-*.feature".
+    paths: [process.env.FEATURES || 'tests/features/**/*.feature'],
     tags: process.env.CUCUMBER_TAGS || 'not @wip',
-    format: ['pretty', 'json:tests/reports/cucumber_report.json'],
+    format: ['pretty', `json:tests/reports/${reportName}.json`],
     worldParameters: {
       launchUrl: process.env.LAUNCH_URL || 'http://localhost',
       users: {
@@ -27,11 +35,11 @@ module.exports = {
         before_step: 0,
         after_step: 0,
       },
+      // The recipe needs no named selectors of its own.
       selectors: {
         css: {},
         xpath: {},
-        filesPath: './tests/selectors/',
-        files: ['varbase_ai_media_base.json'],
+        files: [],
         offset: 60,
       },
       screenshot: {
