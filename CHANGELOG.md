@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Back to dev: require AI Media 1.0.x-dev (`drupal/ai_media: 1.0.x-dev`) on the 1.0.x branch
   ([#3638185](https://www.drupal.org/i/3638185)).
+- The description says Generate with AI is a switch inside the Image and SVG Image tabs,
+  as AI Media places it since 1.0.0-alpha3, not separate tabs ([#3638776](https://www.drupal.org/i/3638776)).
 
 ## [1.0.0-rc2] - 2026-11-14
 ### Changed

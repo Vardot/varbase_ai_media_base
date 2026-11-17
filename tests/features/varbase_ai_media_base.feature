@@ -16,6 +16,12 @@ Feature: Varbase AI Media Base on Varbase 11
      Then "select[name='generators[image][media_type]'] option[value='image'][selected]" should have a count of 1
       And "select[name='generators[svg][media_type]'] option[value='svg_image'][selected]" should have a count of 1
 
+  # CI sets no AI provider, so the switch itself is not shown there; the
+  # setting that places it is.
+  Scenario: Generate with AI is a switch inside the Image and SVG Image tabs
+     When I go to "/admin/config/ai/ai-media"
+     Then "input[name='tab_position'][value='inside']:checked" should have a count of 1
+
   Scenario: Insert Media in Full HTML allows Image and SVG Image
      When I go to "/admin/config/content/formats/manage/full_html"
      Then "input[name='filters[media_embed][settings][allowed_media_types][image]']:checked" should have a count of 1

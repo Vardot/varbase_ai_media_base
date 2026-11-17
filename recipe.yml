@@ -1,5 +1,5 @@
 name: 'Varbase AI Media Base'
-description: 'Generate images and SVGs with AI from the Media Library on Varbase 11, with the AI Media module: a "Generate image with AI" tab right after Image and a "Generate SVG with AI" tab right after SVG Image, saving into those media types, with the permission granted to the editorial roles. No custom PHP or shell code.'
+description: 'Generate images and SVGs with AI from the Media Library on Varbase 11, with the AI Media module: an "Upload | Generate with AI" switch inside the Image and SVG Image tabs, saving into those media types, with the permission granted to the editorial roles. No custom PHP or shell code.'
 type: 'Varbase AI'
 # Needs default AI providers for text_to_image (images) and chat (SVG);
 # varbase_ai_base sets them up.
